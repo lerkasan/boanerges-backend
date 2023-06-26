@@ -2,7 +2,8 @@ name: Build Jar and Test via Maven then Build and Push Docker Image
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+      - master
     paths-ignore:
 #      - '.github/**'
       - 'README.md'
@@ -51,13 +52,14 @@ jobs:
           detailed_summary: true
 
   build_and_push_docker_image:
+    needs: build_and_test
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write       # For signing images via sigstore/cosign with GitHub OIDC Token
 
-    name: Build and Push Docker Image to ghcr.io
+    name: Build and Push Docker Image to GitHub Packages Container Registry ghcr.io
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539   # v3.5.3
