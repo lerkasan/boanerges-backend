@@ -57,7 +57,7 @@ jobs:
       packages: write
       id-token: write       # For signing images via sigstore/cosign with GitHub OIDC Token
 
-    name: Build and Push Docker Image to ${{ env.REGISTRY }}
+    name: Build and Push Docker Image to ghcr.io
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539   # v3.5.3
