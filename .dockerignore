@@ -1,5 +1,6 @@
 .idea/
 .git/
+.github/
 .gitignore
 .dockerignore
 Dockerfile
