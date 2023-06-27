@@ -10,9 +10,6 @@ on:
       - '.gitignore'
       - '.dockerignore'
 
-#  for debugging purposes
-#  workflow_dispatch:
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -20,11 +17,11 @@ env:
 
 jobs:
 
-  build_and_test:
+  build:
     runs-on: ubuntu-latest
     permissions:
       checks: write
-    name: Build and Test via Maven
+    name: Build via Maven
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
@@ -34,22 +31,47 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'maven'
 
-      - name: Build
-        run: mvn --batch-mode --no-transfer-progress -DskipTests package
+      - name: Build a JAR package via Maven
+        run: mvn --batch-mode --no-transfer-progress -DskipTests clean package
 
-      - name: Test
-        run: mvn --batch-mode --no-transfer-progress -Dmaven.test.failure.ignore=true test
+      - name: Upload JAR package as Artifact
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce   # v3.1.2
+        if: success()
+        with:
+          name: JAR package
+          path: target/*.jar
+
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    name: Run Unit Tests via Maven
+    steps:
+      - name: Checkout backend repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Unit Tests via Maven
+        run: mvn --batch-mode --no-transfer-progress clean test
 
       - name: Upload JUnit Test Report as Artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce   # v3.1.2
         if: success() || failure()
         with:
-          name: Upload JUnit Test Report as Artifact
+          name: JUnit Test Report
           path: target/surefire-reports/*.xml
-          retention-days: 30
 
-      - name: JUnit Test Report
+      - name: Publish JUnit Test Report
         uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226   # v1.6.0
         if: success() || failure()
         with:
@@ -58,32 +80,49 @@ jobs:
           reporter: java-junit
           fail-on-error: true
 
-      - name: Upload JAR package as Artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce   # v3.1.2
-        if: success()
-        with:
-          name: Upload JAR package as Artifact
-          path: target/*.jar
 
-  build_and_push_docker_image:
-    needs: build_and_test
+  publish_jar_package:
+    needs: [ build, test ]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    name: Publish JAR package to GitHub Packages
+    steps:
+      - name: Checkout backend repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Publish JAR package to GitHub Packages
+        run: mvn --batch-mode --no-transfer-progress clean deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  publish_docker_image:
+    needs: [ build, test ]
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write       # For signing images via sigstore/cosign with GitHub OIDC Token
-
     name: Build and Push Docker Image to GitHub Packages Container Registry ghcr.io
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539   # v3.5.3
 
       - name: Install cosign
-        if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@d13028333d784fcc802b67ec924bcebe75aa0a5f   # v3.1.0
 
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc   # v2.2.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -104,7 +143,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ steps.docker_meta.outputs.tags }}
 
-      - name: Sign the images with GitHub OIDC Token
+      - name: Sign the Docker images with GitHub OIDC Token
         env:
           DIGEST: ${{ steps.docker_build_and_push.outputs.digest }}
           TAGS: ${{ steps.docker_meta.outputs.tags }}
