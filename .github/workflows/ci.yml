@@ -14,24 +14,27 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   IMAGE_TAG: ${{ github.sha }}
+  JAVA_VERSION: '17'
+  JAVA_DISTRIBUTION: 'temurin'
+  SETUP_JAVA_CACHE: 'maven'
 
 jobs:
 
   build:
+    name: Build
     runs-on: ubuntu-latest
     permissions:
       checks: write
-    name: Build via Maven
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: ${{ env.SETUP_JAVA_CACHE }}
 
       - name: Build a JAR package via Maven
         run: mvn --batch-mode --no-transfer-progress -DskipTests clean package
@@ -45,21 +48,21 @@ jobs:
 
 
   test:
+    name: Run Unit Tests
     needs: build
     runs-on: ubuntu-latest
     permissions:
       checks: write
-    name: Run Unit Tests via Maven
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: ${{ env.SETUP_JAVA_CACHE }}
 
       - name: Run Unit Tests via Maven
         run: mvn --batch-mode --no-transfer-progress clean test
@@ -82,23 +85,23 @@ jobs:
 
 
   publish_jar_package:
+    name: Publish JAR package to GitHub Packages
     needs: [ build, test ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    name: Publish JAR package to GitHub Packages
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: ${{ env.SETUP_JAVA_CACHE }}
 
       - name: Publish JAR package to GitHub Packages
         run: mvn --batch-mode --no-transfer-progress clean deploy
@@ -107,6 +110,7 @@ jobs:
 
 
   publish_docker_image:
+    name: Build and Push Docker Image to GitHub Container Registry
     needs: [ build, test ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -114,7 +118,6 @@ jobs:
       contents: read
       packages: write
       id-token: write       # For signing images via sigstore/cosign with GitHub OIDC Token
-    name: Build and Push Docker Image to GitHub Packages Container Registry ghcr.io
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539   # v3.5.3
