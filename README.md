@@ -16,7 +16,7 @@ _Example:_
 
 
 3. Open directory with the source code:
-`cd boanerges-frontend`
+`cd boanerges-backend`
 
 
 4. Run the project: `docker compose up`
