@@ -10,8 +10,8 @@ on:
       - '.gitignore'
       - '.dockerignore'
 
-# for debugging purposes
-  workflow_dispatch:
+#  for debugging purposes
+#  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -36,20 +36,19 @@ jobs:
           distribution: 'temurin'
 
       - name: Build
-        run: mvn --batch-mode -DskipTests package
+        run: mvn --batch-mode --no-transfer-progress -DskipTests package
 
       - name: Test
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+        run: mvn --batch-mode --no-transfer-progress -Dmaven.test.failure.ignore=true test
 
-      - name: JUnit Report
-        uses: mikepenz/action-junit-report@baaeba622e27b396105f35ec9ec4ee89ffcbd306   # v3.7.8
+      - name: JUnit Test Report
+        uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226   # v1.6.0
         if: always()
         with:
-          job_name: JUnit Tests
-          report_paths: '**target/surefire-reports/*.xml'
-          fail_on_failure: true
-          require_passed_tests: true
-          detailed_summary: true
+          name: JUnit Test Report
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
 
   build_and_push_docker_image:
     needs: build_and_test
