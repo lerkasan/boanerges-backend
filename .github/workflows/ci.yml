@@ -171,8 +171,10 @@ jobs:
       - name: Get AWS Credentials
         uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355   # v2.2.0
         with:
-          role-to-assume: ${{ secrets.PIPELINE_IAM_ROLE }}
-          role-session-name: GitHub-Action-Role
+#          role-to-assume: ${{ secrets.PIPELINE_IAM_ROLE }}
+#          role-session-name: GitHub-Action-Role
+          aws-access-key-id: ${{ secrets.PIPELINE_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_AWS_SECRET_KEY_ID }}
           aws-region: ${{ env.AWS_REGION }}
       - run: |
           aws deploy create-deployment --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --github-location repository=$GITHUB_REPOSITORY,commitId=$GITHUB_SHA --ignore-application-stop-failures
