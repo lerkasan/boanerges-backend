@@ -10,6 +10,9 @@ on:
       - '.gitignore'
       - '.dockerignore'
 
+# for debugging purposes
+  workflow_dispatch:
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
