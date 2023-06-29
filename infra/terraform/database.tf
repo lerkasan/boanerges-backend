@@ -1,7 +1,7 @@
 resource "aws_db_instance" "primary" {
   storage_type            = "gp2"
   allocated_storage       = 10
-  max_allocated_storage   = 30
+  max_allocated_storage   = 20
   backup_retention_period = 30
 //deletion_protection     = true
   identifier              = var.rds_name
@@ -23,7 +23,7 @@ resource "aws_db_instance" "primary" {
   skip_final_snapshot     = true
 
   tags = {
-    Name        = "demo_primary_db"
+    Name        = join("_", [var.project_name, "_primary_db"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -31,11 +31,11 @@ resource "aws_db_instance" "primary" {
 }
 
 resource "aws_db_subnet_group" "this" {
-  name          = "demo_db_subnet_group"
+  name          = join("_", [var.project_name, "_db_subnet_group"])
   subnet_ids    = [ for subnet in aws_subnet.private : subnet.id ]
 
   tags = {
-    Name        = "demo_db_subnet_group"
+    Name        = join("_", [var.project_name, "_db_subnet_group"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -43,12 +43,12 @@ resource "aws_db_subnet_group" "this" {
 }
 
 resource "aws_security_group" "database" {
-  name        = "database_security_group"
+  name        = join("_", [var.project_name, "_db_security_group"])
   description = "Demo security group for database"
   vpc_id      = aws_vpc.this.id
 
   tags = {
-    Name        = "demo_database_sg"
+    Name        = join("_", [var.project_name, "_database_sg"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -64,7 +64,7 @@ resource "aws_kms_key" "database_encrypt_key" {
   enable_key_rotation     = true
 
   tags = {
-    Name        = "demo_database_encrypt_key"
+    Name        = join("_", [var.project_name, "_database_encrypt_key"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -77,7 +77,7 @@ resource "aws_kms_key" "ssm_param_encrypt_key" {
   enable_key_rotation     = true
 
   tags = {
-    Name        = "demo_ssm_param_encrypt_key"
+    Name        = join("_", [var.project_name, "_ssm_param_encrypt_key"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name

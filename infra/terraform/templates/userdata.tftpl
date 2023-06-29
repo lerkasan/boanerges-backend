@@ -26,10 +26,12 @@ packages:
   - docker-buildx-plugin
   - docker-compose-plugin
   - ruby
-  - wget
 
 runcmd:
-  - wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  - unzip awscliv2.zip
+  - sudo ./aws/install
+  - curl "https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install"
   - chmod +x ./install
   - sudo ./install auto
   - sudo service codedeploy-agent start

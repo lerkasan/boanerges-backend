@@ -41,7 +41,7 @@ resource "aws_security_group_rule" "lb_allow_outbound_http_to_appserver" {
   security_group_id = aws_security_group.alb.id
 }
 
-# -------------------- Webserver rules ---------------------------
+# -------------------- Appserver rules ---------------------------
 
 resource "aws_security_group_rule" "appserver_allow_inbound_https_from_lb" {
   type              = "ingress"

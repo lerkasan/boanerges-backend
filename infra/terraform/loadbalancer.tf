@@ -7,7 +7,7 @@ resource "aws_lb" "app" {
 //enable_deletion_protection = true
 
   tags = {
-    Name        = "demo_app_alb"
+    Name        = join("_", [var.project_name, "_app_alb"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -30,7 +30,7 @@ resource "aws_lb_target_group" "app" {
   }
 
   tags = {
-    Name        = "demo_app_tg"
+    Name        = join("_", [var.project_name, "_app_tg"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -56,7 +56,7 @@ resource "aws_lb_listener" "app" {
   }
 
   tags = {
-    Name        = "demo_app_lb_listener"
+    Name        = join("_", [var.project_name, "_app_lb_listener"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -64,12 +64,12 @@ resource "aws_lb_listener" "app" {
 }
 
 resource "aws_security_group" "alb" {
-  name        = "demo_alb_security_group"
-  description = "demo security group for loadbalancer"
+  name        = join("_", [var.project_name, "_alb_security_group"])
+  description = "security group for loadbalancer"
   vpc_id      = aws_vpc.this.id
 
   tags = {
-    Name        = "demo_alb_sg"
+    Name        = join("_", [var.project_name, "_alb_sg"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name

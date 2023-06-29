@@ -1,5 +1,11 @@
 resource "aws_codedeploy_app" "this" {
-  name = "boanerges"
+  name = var.project_name
+
+  tags = {
+    Name        = join("_", [var.project_name, "_appserver"])
+    terraform   = "true"
+    project     = var.project_name
+  }
 }
 
 data "aws_iam_policy_document" "assume_role" {
@@ -75,6 +81,13 @@ resource "aws_codedeploy_deployment_group" "this" {
       value = var.project_name
     }
   }
+
+  tags = {
+    Name        = join("_", [var.project_name, "_appserver"])
+    terraform   = "true"
+    project     = var.project_name
+  }
+
 
 #  blue_green_deployment_config {
 #    deployment_ready_option {

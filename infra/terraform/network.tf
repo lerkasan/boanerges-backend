@@ -2,7 +2,7 @@ resource "aws_vpc" "this" {
   cidr_block           = "10.0.0.0/16"
 
   tags = {
-    Name        = "demo_vpc"
+    Name        = join("_", [var.project_name, "_vpc"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -22,7 +22,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name        = "demo_public_subnet"
+    Name        = join("_", [var.project_name, "_public_subnet"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = {
-    Name        = "demo_ig"
+    Name        = join("_", [var.project_name, "_ig"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -49,7 +49,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name        = "demo_public_rt"
+    Name        = join("_", [var.project_name, "_public_rt"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -69,7 +69,7 @@ resource "aws_eip" "this" {
   vpc        = true
 
   tags = {
-    Name        = "demo_nat_gw_eip"
+    Name        = join("_", [var.project_name, "_nat_gw_eip"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -87,7 +87,7 @@ resource "aws_nat_gateway" "this" {
   allocation_id     = aws_eip.this[each.key].id
 
   tags = {
-    Name        = "demo_nat_gw"
+    Name        = join("_", [var.project_name, "_nat_gw"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -110,7 +110,7 @@ resource "aws_subnet" "private" {
   // cidr_block             = format("10.0.%s.0/24", format("%d", 250 - index(local.availability_zones, each.value)))
 
   tags = {
-    Name        = "demo_private_subnet"
+    Name        = join("_", [var.project_name, "_private_subnet"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -128,7 +128,7 @@ resource "aws_route_table" "private" {
   }
 
   tags = {
-    Name        = "demo_private_rt"
+    Name        = join("_", [var.project_name, "_private_rt"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name

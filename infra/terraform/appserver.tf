@@ -4,7 +4,7 @@ resource "aws_instance" "appserver" {
   availability_zone           = each.value
   subnet_id                   = aws_subnet.private[each.value].id
   associate_public_ip_address = false
-  ami                         = data.aws_ami.this.id
+  ami                         = data.aws_ami.amazon_linux2.id
   instance_type               = var.ec2_instance_type
   user_data                   = data.cloudinit_config.user_data.rendered
   key_name                    = var.appserver_private_ssh_key_name
@@ -12,7 +12,7 @@ resource "aws_instance" "appserver" {
   monitoring                  = true
 
   tags = {
-    Name        = "boanerges_appserver"
+    Name        = join("_", [var.project_name, "_appserver"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -20,12 +20,12 @@ resource "aws_instance" "appserver" {
 }
 
 resource "aws_security_group" "appserver" {
-  name        = "appserver_security_group"
-  description = "Demo security group for application server"
+  name        = join("_", [var.project_name, "_appserver_security_group"])
+  description = "security group for application server"
   vpc_id      = aws_vpc.this.id
 
   tags = {
-    Name        = "demo_appserver_sg"
+    Name        = join("_", [var.project_name, "_appserver_sg"])
     terraform   = "true"
     environment = var.environment
     project     = var.project_name
@@ -35,7 +35,17 @@ resource "aws_security_group" "appserver" {
   depends_on  = [ aws_internet_gateway.this ]
 }
 
-data "aws_ami" "this" {
+data "aws_ami" "amazon_linux2" {
+  owners = ["amazon"]
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+  }
+}
+
+data "aws_ami" "ubuntu" {
   most_recent = true
 
   filter {
