@@ -19,7 +19,7 @@ _Example:_
 `cd boanerges-backend`
 
 
-4. Run the project: `docker compose up`
+4. Run the project: `docker compose up -f compose-dev.yml`
 
 
 5. Open http://localhost URL in your browser.
