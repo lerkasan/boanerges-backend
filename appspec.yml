@@ -10,22 +10,22 @@ permissions:
     group: ubuntu
 hooks:
   BeforeInstall:
-    - location: aws/scripts/before-install.sh
+    - location: infra/aws/scripts/before-install.sh
       timeout: 300
       runas: root
   AfterInstall:
-    - location: aws/scripts/after-install.sh
+    - location: infra/aws/scripts/after-install.sh
       timeout: 300
       runas: root
   ApplicationStart:
-    - location: aws/scripts/application-start.sh
+    - location: infra/aws/scripts/application-start.sh
       timeout: 300
       runas: ubuntu
   ApplicationStop:
-    - location: aws/scripts/application-stop.sh
+    - location: infra/aws/scripts/application-stop.sh
       timeout: 300
       runas: ubuntu
   ValidateService:
-    - location: aws/scripts/validate-service.sh
+    - location: infra/aws/scripts/validate-service.sh
       timeout: 300
       runas: ubuntu

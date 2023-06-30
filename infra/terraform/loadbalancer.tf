@@ -18,6 +18,7 @@ resource "aws_lb_target_group" "app" {
   port     = var.http_port
   protocol = "HTTP"
   vpc_id   = aws_vpc.this.id
+  deregistration_delay = 30
 
   health_check {
     healthy_threshold   = 5
