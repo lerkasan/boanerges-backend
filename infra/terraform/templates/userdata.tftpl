@@ -10,33 +10,33 @@ ssh_pwauth: false
 groups:
   - docker
 
+packages:
+- curl
+- ca-certificates
+- gnupg
+- ruby   # Ruby is needed for CodeDeploy agent installation script
+
 runcmd:
-# install CodeDeploy agent and Docker
-  - sudo apt install -y ruby ca-certificates curl gnupg     # Ruby is needed for CodeDeploy agent installation script
-  - cd ~
+  - cd /home/ubuntu
+# install AWS CLI v2
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  - unzip awscliv2.zip
+  - sudo ./aws/install
+# install CodeDeploy agent
   - export REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
   - curl "https://aws-codedeploy-$REGION.s3.$REGION.amazonaws.com/latest/install" -o "install"
   - chmod +x ./install
   - sudo ./install auto
   - sudo service codedeploy-agent start
-  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  - unzip awscliv2.zip
-  - sudo ./aws/install
+# install Docker and Docker Compose v2
   - sudo install -m 0755 -d /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   - sudo chmod a+r /etc/apt/keyrings/docker.gpg
   - echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   - sudo apt update
-
-packages:
-  - docker-ce
-  - docker-ce-cli
-  - containerd.io
-  - docker-buildx-plugin
-  - docker-compose-plugin
-
-#  sudo systemctl enable docker.service
-#  sudo systemctl enable containerd.service
+  - sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - sudo systemctl enable docker.service
+  - sudo systemctl enable containerd.service
 
 system_info:
   default_user:
