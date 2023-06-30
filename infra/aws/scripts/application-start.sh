@@ -3,8 +3,8 @@ set -xe
 
 REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 
-COMMIT_SHA=$(aws deploy get-deployment --region $REGION --deployment-id $DEPLOYMENT_ID --query ".deploymentInfo.revision.gitHubLocation.commitId" --output text)
-REPOSITORY=$(aws deploy get-deployment --region $REGION --deployment-id $DEPLOYMENT_ID --query ".deploymentInfo.revision.gitHubLocation.repository" --output text)
+COMMIT_SHA=$(aws deploy get-deployment --region $REGION --deployment-id $DEPLOYMENT_ID --query "deploymentInfo.revision.gitHubLocation.commitId" --output text)
+REPOSITORY=$(aws deploy get-deployment --region $REGION --deployment-id $DEPLOYMENT_ID --query "deploymentInfo.revision.gitHubLocation.repository" --output text)
 
 GITHUB_TOKEN=$(aws ssm get-parameter --region $REGION --name GITHUB_TOKEN --with-decryption --query Parameter.Value --output text)
 
