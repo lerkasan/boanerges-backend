@@ -8,7 +8,7 @@ resource "aws_codedeploy_app" "this" {
   }
 }
 
-data "aws_iam_policy_document" "assume_role" {
+data "aws_iam_policy_document" "assume_role_codedeploy" {
   statement {
     effect = "Allow"
 
@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "assume_role" {
 
 resource "aws_iam_role" "codedeploy" {
   name               = "codedeployRole"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.assume_role_codedeploy.json
 }
 
 resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {

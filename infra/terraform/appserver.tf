@@ -46,33 +46,60 @@ resource "aws_iam_instance_profile" "this" {
   name = join("_", [var.project_name, "_ec2_profile"])
   role = aws_iam_role.appserver_iam_role.name
 }
-resource "aws_iam_role" "appserver_iam_role" {
-  name        = "dev-ssm-role"
-  description = "The role for the developer resources EC2"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "ec2.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole"
-        }
-    ]
-}
-EOF
 
-  tags = {
-    stack = "test"
+resource "aws_iam_role" "appserver_iam_role" {
+  name        = join("", [title(var.project_name), "AppserverRole"])
+  description = "The role for EC2 instances for appserver"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_ec2.json
+}
+
+data "aws_iam_policy_document" "assume_role_ec2" {
+  statement {
+    sid           = "1"
+    effect        = "Allow"
+    actions       = [ "sts:AssumeRole" ]
+    principals {
+      type        = "Service"
+      identifiers = [ "ec2.amazonaws.com" ]
+    }
   }
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
   role       = aws_iam_role.appserver_iam_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "GetDeploymentAndGetSSMParameter" {
+  role       = aws_iam_role.appserver_iam_role.name
+  policy_arn = aws_iam_policy.read_access_to_parameters_and_deployments.arn
+}
+
+resource "aws_iam_policy" "read_access_to_parameters_and_deployments" {
+  name        = "test-policy"
+  description = "Allow to get deployment information to retrieve a commitId hash"
+  policy      = data.aws_iam_policy_document.read_access_to_parameters_and_deployments.json
+}
+
+data "aws_iam_policy_document" "read_access_to_parameters_and_deployments" {
+  statement {
+    sid       = "2"
+    effect    = "Allow"
+    actions   = [ "codedeploy:GetDeployment" ]
+    resources = [ aws_codedeploy_deployment_group.this.arn ]
+  }
+
+  statement {
+    sid       = "3"
+    effect    = "Allow"
+    actions   = [ "ssm:GetParameter" ]
+    resources = [
+      aws_ssm_parameter.database_host.arn,
+      aws_ssm_parameter.database_name.arn,
+      aws_ssm_parameter.database_username.arn,
+      aws_ssm_parameter.database_password.arn
+    ]
+  }
 }
 
 data "aws_ami" "amazon_linux2" {
