@@ -1,8 +1,6 @@
 version: 0.0
 os: linux
 files:
-#  - source: /infra/aws
-#    destination: /home/ubuntu/app
   - source: compose.yml
     destination: /home/ubuntu/app/
 permissions:
