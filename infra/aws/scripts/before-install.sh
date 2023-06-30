@@ -2,8 +2,8 @@
 set -xe
 
 # Delete the old  directory as needed.
-if [ -d /home/ec2-user/app ]; then
-    rm -rf /home/ec2-user/app/
+if [ -d /home/ubuntu/app ]; then
+    rm -rf /home/ubuntu/app/
 fi
 
-mkdir -vp /home/ec2-user/app/
+mkdir -vp /home/ubuntu/app/

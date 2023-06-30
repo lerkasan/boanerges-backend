@@ -1,5 +1,5 @@
 #!/bin/bash
 set -xe
 
-cd /home/ec2-user/app
+cd /home/ubuntu/app
 docker compose down

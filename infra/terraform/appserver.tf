@@ -4,14 +4,21 @@ resource "aws_instance" "appserver" {
   availability_zone           = each.value
   subnet_id                   = aws_subnet.private[each.value].id
   associate_public_ip_address = false
-  ami                         = data.aws_ami.amazon_linux2.id
+  ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.ec2_instance_type
   user_data                   = data.cloudinit_config.user_data.rendered
   key_name                    = var.appserver_private_ssh_key_name
   vpc_security_group_ids      = [ aws_security_group.appserver.id ]
   monitoring                  = true
+  iam_instance_profile        = aws_iam_instance_profile.this.name
 
-  tags = {
+  root_block_device {
+    delete_on_termination = true
+    volume_type           = "gp3"
+    volume_size           = 10
+  }
+
+tags = {
     Name        = join("_", [var.project_name, "_appserver"])
     terraform   = "true"
     environment = var.environment
@@ -33,6 +40,39 @@ resource "aws_security_group" "appserver" {
 
   # Dependency is used to ensure that VPC has an Internet gateway
   depends_on  = [ aws_internet_gateway.this ]
+}
+
+resource "aws_iam_instance_profile" "this" {
+  name = join("_", [var.project_name, "_ec2_profile"])
+  role = aws_iam_role.appserver_iam_role.name
+}
+resource "aws_iam_role" "appserver_iam_role" {
+  name        = "dev-ssm-role"
+  description = "The role for the developer resources EC2"
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+EOF
+
+  tags = {
+    stack = "test"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
+  role       = aws_iam_role.appserver_iam_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 data "aws_ami" "amazon_linux2" {

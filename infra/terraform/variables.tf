@@ -183,13 +183,13 @@ variable "rds_name" {
 variable "database_engine" {
   description = "database engine"
   type        = string
-  default     = "mariadb"
+  default     = "mysql"
 }
 
 variable "database_engine_version" {
   description = "database engine version"
   type        = string
-  default     = "10.6"
+  default     = "8.0.32"
 }
 
 variable "database_instance_class" {

@@ -18,7 +18,7 @@ cidr                     = "10.0.0.0/16"
 public_subnets           = [ "10.0.10.0/24", "10.0.20.0/24" ]
 private_subnets          = [ "10.0.240.0/24", "10.0.250.0/24" ]
 
-ec2_instance_type        = "t3.micro"
+ec2_instance_type        = "t2.micro"
 os                       = "ubuntu"
 os_product               = "server"
 os_version               = "22.04"
@@ -27,8 +27,8 @@ ami_virtualization       = "hvm"
 #ami_name                = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
 
 rds_name                 = "demo-db"
-database_engine          = "mariadb"
-database_engine_version  = "10.6"
+database_engine          = "mysql"
+database_engine_version  = "8.0.32"
 database_instance_class  = "db.t3.micro"
 
 

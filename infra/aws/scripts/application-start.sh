@@ -18,6 +18,6 @@ BACKEND_TAG=$([ $REPOSITORY == "boanerges-backend" ] && echo $COMMIT_SHA || echo
 
 echo $GITHUB_TOKEN | docker login ghcr.io -u lerkasan --password-stdin
 
-cd /home/ec2-user/app
+cd /home/ubuntu/app
 
 docker compose up -d

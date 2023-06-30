@@ -10,36 +10,34 @@ ssh_pwauth: false
 groups:
   - docker
 
-yum_repos:
-  docker-ce:
-    name: Docker CE
-    baseurl: https://download.docker.com/linux/centos/docker-ce.repo
-    enabled: true
-    gpgcheck: true
-    gpgkey: https://download.docker.com/linux/centos/gpg
+runcmd:
+# install CodeDeploy agent and Docker
+  - sudo apt install -y ruby ca-certificates curl gnupg     # Ruby is needed for CodeDeploy agent installation script
+  - cd ~
+  - export REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+  - curl "https://aws-codedeploy-$REGION.s3.$REGION.amazonaws.com/latest/install" -o "install"
+  - chmod +x ./install
+  - sudo ./install auto
+  - sudo service codedeploy-agent start
+  - sudo install -m 0755 -d /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  - sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  - echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - sudo apt update
 
 packages:
-  - curl
   - docker-ce
   - docker-ce-cli
   - containerd.io
   - docker-buildx-plugin
   - docker-compose-plugin
-  - ruby
 
-runcmd:
-  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  - unzip awscliv2.zip
-  - sudo ./aws/install
-  - curl "https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install"
-  - chmod +x ./install
-  - sudo ./install auto
-  - sudo service codedeploy-agent start
+#  sudo systemctl enable docker.service
+#  sudo systemctl enable containerd.service
 
 system_info:
   default_user:
     groups: [ docker ]
-
 
 
 # Adds each entry to ~/.ssh/authorized_keys for the configured user or the first user defined
