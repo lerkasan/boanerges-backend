@@ -177,7 +177,7 @@ variable "mysql_port" {
 variable "rds_name" {
   description = "The name of the RDS instance"
   type        = string
-  default     = "demo-db"
+  default     = "boanerges-db"
 }
 
 variable "database_engine" {
