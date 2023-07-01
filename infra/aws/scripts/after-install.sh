@@ -12,8 +12,8 @@ GITHUB_TOKEN=$(aws ssm get-parameter --region $REGION --name GITHUB_TOKEN --with
 COMMIT_SHA=$(aws deploy get-deployment --deployment-id $DEPLOYMENT_ID --query "deploymentInfo.revision.gitHubLocation.commitId" --output text)
 REPOSITORY=$(aws deploy get-deployment --deployment-id $DEPLOYMENT_ID --query "deploymentInfo.revision.gitHubLocation.repository" --output text)
 
-FRONTEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-frontend" ] && echo $COMMIT_SHA || echo "latest")
-BACKEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-backend" ] && echo $COMMIT_SHA || echo "latest")
+FRONTEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-frontend" ] && echo "sha-$COMMIT_SHA" || echo "latest")
+BACKEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-backend" ] && echo "sha-$COMMIT_SHA" || echo "latest")
 
 export FRONTEND_TAG=$FRONTEND_TAG
 export BACKEND_TAG=$BACKEND_TAG

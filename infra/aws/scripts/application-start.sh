@@ -18,8 +18,8 @@ DB_NAME=$(aws ssm get-parameter --region $REGION --name ${APPLICATION_NAME}_data
 DB_USERNAME=$(aws ssm get-parameter --region $REGION --name ${APPLICATION_NAME}_database_username --with-decryption --query Parameter.Value --output text)
 DB_PASSWORD=$(aws ssm get-parameter --region $REGION --name ${APPLICATION_NAME}_database_password --with-decryption --query Parameter.Value --output text)
 
-FRONTEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-frontend" ] && echo $COMMIT_SHA || echo "latest")
-BACKEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-backend" ] && echo $COMMIT_SHA || echo "latest")
+FRONTEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-frontend" ] && echo "sha-$COMMIT_SHA" || echo "latest")
+BACKEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-backend" ] && echo "sha-$COMMIT_SHA" || echo "latest")
 
 export DB_HOST=$DB_HOST
 export DB_NAME=$DB_NAME
