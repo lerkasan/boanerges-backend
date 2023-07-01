@@ -19,12 +19,12 @@ _Example:_
 `cd boanerges-backend`
 
 
-4. Run the project: `docker compose up -f compose-dev.yml`
+4. Run the project: `docker compose -f compose-dev.yml up`
 
 
 5. Open http://localhost URL in your browser.
 
 
-6. To stop the project, press `Ctrl + C` and run the following command: `docker compose down`
+6. To stop the project, press `Ctrl + C` and run the following command: `docker compose -f compose-dev.yml down`
 
 _Note:_ Repository with frontend source code: [lerkasan/boanerges-frontend](https://github.com/lerkasan/boanerges-frontend)

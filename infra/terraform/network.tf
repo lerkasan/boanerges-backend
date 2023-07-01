@@ -97,6 +97,22 @@ resource "aws_nat_gateway" "this" {
   depends_on = [aws_internet_gateway.this]
 }
 
+data "aws_route53_zone" "lerkasan_net" {
+  name         = "lerkasan.net"
+  private_zone = false
+}
+
+resource "aws_route53_record" "this" {
+  zone_id = data.aws_route53_zone.lerkasan_net.zone_id
+  name    = data.aws_route53_zone.lerkasan_net.name
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.app.dns_name
+    zone_id                = aws_lb.app.zone_id
+    evaluate_target_health = true
+  }
+}
 
 # ----------------  PRIVATE NETWORK -----------------
 
