@@ -15,6 +15,7 @@ resource "aws_lb" "app" {
 }
 
 resource "aws_lb_target_group" "app" {
+  name     = join("_", [var.project_name, "_app_tg"])
   port     = var.http_port
   protocol = "HTTP"
   vpc_id   = aws_vpc.this.id
