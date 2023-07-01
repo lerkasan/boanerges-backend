@@ -45,10 +45,10 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
 #}
 
 resource "aws_codedeploy_deployment_group" "this" {
-  app_name              = aws_codedeploy_app.this.name
-  deployment_group_name = "boanerges-group"
-  service_role_arn      = aws_iam_role.codedeploy.arn
-  deployment_config_name = "CodeDeployDefault.OneAtATime"
+  app_name                = aws_codedeploy_app.this.name
+  deployment_group_name   = "production"
+  service_role_arn        = aws_iam_role.codedeploy.arn
+  deployment_config_name  = "CodeDeployDefault.OneAtATime"
 #  deployment_config_name = aws_codedeploy_deployment_config.this.id
 
   deployment_style {

@@ -100,6 +100,16 @@ data "aws_iam_policy_document" "read_access_to_parameters_and_deployments" {
       aws_ssm_parameter.database_password.arn
     ]
   }
+
+  statement {
+    sid       = "4"
+    effect    = "Allow"
+    actions   = [
+      "kms:Decrypt",
+      "kms:DescribeKey"
+    ]
+    resources = [ aws_kms_key.ssm_param_encrypt_key.arn ]
+  }
 }
 
 data "aws_ami" "amazon_linux2" {

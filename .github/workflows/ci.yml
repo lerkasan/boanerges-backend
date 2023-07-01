@@ -21,7 +21,7 @@ env:
   JAVA_DISTRIBUTION: 'temurin'
   SETUP_JAVA_CACHE: 'maven'
   CODEDEPLOY_APPLICATION: 'boanerges'
-  DEPLOYMENT_GROUP: 'boanerges-group'
+  DEPLOYMENT_GROUP: 'production'
   AWS_REGION: 'us-east-1'
 
 jobs:

@@ -84,6 +84,13 @@ resource "aws_kms_key" "ssm_param_encrypt_key" {
   }
 }
 
+resource "aws_kms_grant" "decrypt_access_for_ec2" {
+  name              = "decrypt_access_for_ec2_boanerges"
+  key_id            = aws_kms_key.ssm_param_encrypt_key.id
+  grantee_principal = aws_iam_role.appserver_iam_role.arn
+  operations        = [ "Decrypt" ]
+}
+
 resource "aws_ssm_parameter" "database_host" {
   name        = join("_", [var.project_name, "database_host"])
   description = "Demo database host"
