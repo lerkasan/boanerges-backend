@@ -85,7 +85,10 @@ data "aws_iam_policy_document" "read_access_to_parameters_and_deployments" {
   statement {
     sid       = "2"
     effect    = "Allow"
-    actions   = [ "codedeploy:GetDeployment" ]
+    actions   = [
+      "codedeploy:GetDeployment",
+      "codedeploy:ListDeployments"
+    ]
     resources = [ aws_codedeploy_deployment_group.this.arn ]
   }
 
