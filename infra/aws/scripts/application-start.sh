@@ -21,17 +21,14 @@ DB_PASSWORD=$(aws ssm get-parameter --region $REGION --name ${APPLICATION_NAME}_
 FRONTEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-frontend" ] && echo $COMMIT_SHA || echo "latest")
 BACKEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-backend" ] && echo $COMMIT_SHA || echo "latest")
 
+export DB_HOST=$DB_HOST
+export DB_NAME=$DB_NAME
+export DB_USERNAME=$DB_USERNAME
+export DB_PASSWORD=$DB_PASSWORD
+export FRONTEND_TAG=$FRONTEND_TAG
+export BACKEND_TAG=$BACKEND_TAG
+
 echo $GITHUB_TOKEN | docker login ghcr.io -u lerkasan --password-stdin
-
-echo "deployment_id=$DEPLOYMENT_ID"
-echo "commit=$COMMIT_SHA"
-echo "repository=$REPOSITORY"
-echo "frontend_tag=$FRONTEND_TAG"
-echo "backend_tag=$BACKEND_TAG"
-echo "db_host=$DB_HOST"
-echo "db_name=$DB_NAME"
-echo "db_username=$DB_USERNAME"
-
 
 cd /home/ubuntu/app
 

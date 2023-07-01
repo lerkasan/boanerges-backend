@@ -15,13 +15,10 @@ REPOSITORY=$(aws deploy get-deployment --deployment-id $DEPLOYMENT_ID --query "d
 FRONTEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-frontend" ] && echo $COMMIT_SHA || echo "latest")
 BACKEND_TAG=$([ $REPOSITORY == "lerkasan/boanerges-backend" ] && echo $COMMIT_SHA || echo "latest")
 
-echo $GITHUB_TOKEN | docker login ghcr.io -u lerkasan --password-stdin
+export FRONTEND_TAG=$FRONTEND_TAG
+export BACKEND_TAG=$BACKEND_TAG
 
-echo "deployment_id=$DEPLOYMENT_ID"
-echo "commit=$COMMIT_SHA"
-echo "repository=$REPOSITORY"
-echo "frontend_tag=$FRONTEND_TAG"
-echo "backend_tag=$BACKEND_TAG"
+echo $GITHUB_TOKEN | docker login ghcr.io -u lerkasan --password-stdin
 
 cd /home/ubuntu/app
 
