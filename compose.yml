@@ -5,19 +5,19 @@ services:
   frontend:
     image: ghcr.io/lerkasan/boanerges-frontend:${FRONTEND_TAG:-latest} # commit sha from environment variable    aws deploy get-deployment --deployment-id $DEPLOYMENT_ID  --query  ".deploymentInfo.revision.gitHubLocation.commitId" --output text
     restart: always
-    read_only: true
+#    read_only: true
     tmpfs:
       - /tmp
       - /var/run
       - /var/cache/nginx
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-      - CHOWN
-      - DAC_OVERRIDE
-      - SETGID
-      - SETUID
+#    cap_drop:
+#      - ALL
+#    cap_add:
+#      - NET_BIND_SERVICE
+#      - CHOWN
+#      - DAC_OVERRIDE
+#      - SETGID
+#      - SETUID
     ports:
       - "80:80"
     networks:
