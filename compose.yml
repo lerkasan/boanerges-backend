@@ -21,7 +21,8 @@ services:
     ports:
       - "80:80"
     networks:
-      - app
+      app:
+        ipv4_address: 172.20.0.12
     depends_on:
       - backend
 
@@ -43,7 +44,11 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - app
+      app:
+        ipv4_address: 172.20.0.11
 
 networks:
   app:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

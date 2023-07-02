@@ -8,3 +8,5 @@ fi
 
 mkdir -vp /home/ubuntu/app/
 chown -R ubuntu:ubuntu /home/ubuntu/app/
+
+docker system prune -a
