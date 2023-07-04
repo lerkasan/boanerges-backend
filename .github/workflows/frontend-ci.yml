@@ -31,6 +31,9 @@ jobs:
   build:
     name: Build Frontend
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
     strategy:
       matrix:
         node-version: [ 16.x, 18.x ]
@@ -45,11 +48,11 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Build
-        run: npm run build ${{ env.WORKING_DIRECTORY }}
+        run: npm run build
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
 
@@ -57,6 +60,9 @@ jobs:
     name: Run Frontend Unit Tests
     needs: build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
     strategy:
       matrix:
         node-version: [ 16.x, 18.x ]
@@ -71,11 +77,11 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Build
-        run: npm test ${{ env.WORKING_DIRECTORY }}
+        run: npm test
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
 
