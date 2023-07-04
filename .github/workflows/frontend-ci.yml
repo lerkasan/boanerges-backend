@@ -1,0 +1,73 @@
+name: Build and test via npm, then build and push Docker image
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'backend/**'
+      - 'Dockerfile.backend'
+#      - '.github/**'
+      - 'README.md'
+      - '.gitignore'
+      - '.dockerignore'
+
+# for debugging purposes
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x, 18.x ]
+    steps:
+      - name: Checkout frontend repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c   # v3.6.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+
+  test:
+    name: Run Frontend Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x, 18.x ]
+    steps:
+      - name: Checkout frontend repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c   # v3.6.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm test
+
+
+  dockerize_and_deploy_frontend:
+    name: Dockerize and Deploy Frontend
+    needs: [ build, test ]
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/dockerize_and_deploy.yml
+    with:
+      app_part: frontend

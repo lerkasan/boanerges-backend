@@ -1,0 +1,111 @@
+name: Build Jar and Test via Maven then Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'frontend/**'
+      - 'Dockerfile.frontend'
+#      - '.github/**'
+      - 'README.md'
+      - '.gitignore'
+      - '.dockerignore'
+
+# for debugging purposes
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+  JAVA_DISTRIBUTION: 'temurin'
+  SETUP_JAVA_CACHE: 'maven'
+
+jobs:
+
+  build:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - name: Checkout backend repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
+
+      - name: Set up JDK
+        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: ${{ env.SETUP_JAVA_CACHE }}
+
+      - name: Build a JAR package via Maven
+        run: mvn --batch-mode --no-transfer-progress -DskipTests clean package
+
+      - name: Upload JAR package as Artifact
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce   # v3.1.2
+        if: success()
+        with:
+          name: JAR package
+          path: target/*.jar
+
+
+  test:
+    name: Run Backend Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - name: Checkout backend repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
+
+      - name: Set up JDK
+        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: ${{ env.SETUP_JAVA_CACHE }}
+
+      - name: Run Unit Tests via Maven
+        run: mvn --batch-mode --no-transfer-progress clean test
+
+      - name: Upload JUnit Test Report as Artifact
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce   # v3.1.2
+        if: success() || failure()
+        with:
+          name: JUnit Test Report
+          path: target/surefire-reports/*.xml
+
+
+  publish_jar_package:
+    name: Publish JAR package to GitHub Packages
+    needs: [ build, test ]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout backend repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539     # v3.5.3
+
+      - name: Set up JDK
+        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2   # v3.11.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: ${{ env.SETUP_JAVA_CACHE }}
+
+      - name: Publish JAR package to GitHub Packages
+        run: mvn --batch-mode --no-transfer-progress clean deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  dockerize_and_deploy_backend:
+    name: Dockerize and Deploy Backend
+    needs: [ build, test ]
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/dockerize_and_deploy.yml
+    with:
+      app_part: backend

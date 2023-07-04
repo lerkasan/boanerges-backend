@@ -4,8 +4,8 @@ RUN mkdir /app
 
 WORKDIR /app
 
-COPY ./src ./src
-COPY ./pom.xml ./pom.xml
+COPY backend/src ./src
+COPY backend/pom.xml ./pom.xml
 
 RUN mvn --batch-mode --no-transfer-progress clean package
 

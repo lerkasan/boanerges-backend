@@ -1,0 +1,83 @@
+name: Dockerize and Deploy
+
+on:
+  workflow_call:
+    inputs:
+      app_part:
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}-${{ inputs.app_part }}
+  IMAGE_TAG: ${{ github.sha }}
+  CODEDEPLOY_APPLICATION: 'boanerges'
+  DEPLOYMENT_GROUP: 'production'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+
+  publish_docker_image:
+    name: Build and Push Backend Docker Image to GitHub Container Registry
+    needs: [ build, test ]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write       # For signing images via sigstore/cosign with GitHub OIDC Token
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@98637d7db679cd12b4ae373378e391551b922539   # v3.5.3
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@d13028333d784fcc802b67ec924bcebe75aa0a5f   # v3.1.0
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc   # v2.2.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: docker_meta
+        uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175   # v4.6.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: type=sha,format=long
+
+      - name: Build and Push Backend container images
+        id: docker_build_and_push
+        uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825   # v4.1.1
+        with:
+          file: Dockerfile.${{ inputs.app_part }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ steps.docker_meta.outputs.tags }}
+
+      - name: Sign the Docker images with GitHub OIDC Token
+        env:
+          DIGEST: ${{ steps.docker_build_and_push.outputs.digest }}
+          TAGS: ${{ steps.docker_meta.outputs.tags }}
+        run: cosign sign --yes "${TAGS}@${DIGEST}"
+
+
+  deploy:
+    name: Deploy to AWS EC2
+    needs: [ publish_docker_image ]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Get AWS Credentials
+        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355   # v2.2.0
+        with:
+          #          role-to-assume: ${{ secrets.PIPELINE_IAM_ROLE }}
+          #          role-session-name: GitHub-Action-Role
+          aws-access-key-id: ${{ secrets.PIPELINE_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_AWS_SECRET_KEY_ID }}
+          aws-region: ${{ env.AWS_REGION }}
+      - run: |
+          aws deploy create-deployment --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --github-location repository=$GITHUB_REPOSITORY,commitId=$GITHUB_SHA --ignore-application-stop-failures
