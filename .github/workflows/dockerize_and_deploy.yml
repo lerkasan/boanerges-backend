@@ -19,7 +19,6 @@ jobs:
 
   publish_docker_image:
     name: Build and Push Backend Docker Image to GitHub Container Registry
-    needs: [ build, test ]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
