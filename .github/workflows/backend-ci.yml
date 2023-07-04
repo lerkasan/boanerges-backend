@@ -27,6 +27,7 @@ env:
   JAVA_VERSION: '17'
   JAVA_DISTRIBUTION: 'temurin'
   SETUP_JAVA_CACHE: 'maven'
+  WORKING_DIRECTORY: './backend'
 
 jobs:
 
@@ -48,13 +49,14 @@ jobs:
 
       - name: Build a JAR package via Maven
         run: mvn --batch-mode --no-transfer-progress -DskipTests clean package
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Upload JAR package as Artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce   # v3.1.2
         if: success()
         with:
           name: JAR package
-          path: target/*.jar
+          path: backend/target/*.jar
 
 
   test:
@@ -76,13 +78,14 @@ jobs:
 
       - name: Run Unit Tests via Maven
         run: mvn --batch-mode --no-transfer-progress clean test
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Upload JUnit Test Report as Artifact
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce   # v3.1.2
         if: success() || failure()
         with:
           name: JUnit Test Report
-          path: target/surefire-reports/*.xml
+          path: backend/target/surefire-reports/*.xml
 
 
   publish_jar_package:
@@ -106,6 +109,7 @@ jobs:
 
       - name: Publish JAR package to GitHub Packages
         run: mvn --batch-mode --no-transfer-progress clean deploy
+        working-directory: ${{ env.WORKING_DIRECTORY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
