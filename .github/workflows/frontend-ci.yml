@@ -45,12 +45,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci ${{ env.WORKING_DIRECTORY }}
+#        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Build
-        run: npm run build
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run build ${{ env.WORKING_DIRECTORY }}
+#        working-directory: ${{ env.WORKING_DIRECTORY }}
 
 
   test:
@@ -71,12 +71,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci ${{ env.WORKING_DIRECTORY }}
+#        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Build
-        run: npm test
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm test ${{ env.WORKING_DIRECTORY }}
+#        working-directory: ${{ env.WORKING_DIRECTORY }}
 
 
   dockerize_and_deploy_frontend:
