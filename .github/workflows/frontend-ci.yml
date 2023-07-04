@@ -83,3 +83,4 @@ jobs:
     uses: ./.github/workflows/dockerize_and_deploy.yml
     with:
       app_part: frontend
+    secrets: inherit

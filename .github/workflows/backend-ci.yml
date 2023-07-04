@@ -121,7 +121,7 @@ jobs:
     uses: ./.github/workflows/dockerize_and_deploy.yml
     with:
       app_part: backend
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      PIPELINE_AWS_ACCESS_KEY_ID: ${{ secrets.PIPELINE_AWS_ACCESS_KEY_ID }}
-      PIPELINE_AWS_SECRET_KEY_ID: ${{ secrets.PIPELINE_AWS_SECRET_KEY_ID }}
+    secrets: inherit
+#      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      PIPELINE_AWS_ACCESS_KEY_ID: ${{ secrets.PIPELINE_AWS_ACCESS_KEY_ID }}
+#      PIPELINE_AWS_SECRET_KEY_ID: ${{ secrets.PIPELINE_AWS_SECRET_KEY_ID }}
