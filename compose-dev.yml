@@ -3,7 +3,7 @@ version: '3'
 services:
 
   frontend:
-    image: ghcr.io/lerkasan/boanerges-frontend:${FRONTEND_TAG:-latest} # commit sha from environment variable    aws deploy get-deployment --deployment-id $DEPLOYMENT_ID  --query  ".deploymentInfo.revision.gitHubLocation.commitId" --output text
+    image: lerkasan/boanerges-frontend:${FRONTEND_TAG:-latest} # commit sha from environment variable    aws deploy get-deployment --deployment-id $DEPLOYMENT_ID  --query  ".deploymentInfo.revision.gitHubLocation.commitId" --output text
     restart: always
     read_only: true
     tmpfs:
@@ -18,13 +18,17 @@ services:
       - DAC_OVERRIDE
       - SETGID
       - SETUID
+#    environment:
+#      DOMAIN_NAME: ${DOMAIN_NAME:-lerkasan.net}
     ports:
       - "80:80"
+    networks:
+      - app
     depends_on:
       - backend
 
   backend:
-    image: ghcr.io/lerkasan/boanerges-backend:${BACKEND_TAG:-latest} # commit sha from environment variable   aws deploy get-deployment --deployment-id $DEPLOYMENT_ID  --query  ".deploymentInfo.revision.gitHubLocation.commitId" --output text
+    image: lerkasan/boanerges-backend:${BACKEND_TAG:-latest} # commit sha from environment variable   aws deploy get-deployment --deployment-id $DEPLOYMENT_ID  --query  ".deploymentInfo.revision.gitHubLocation.commitId" --output text
     restart: always
     read_only: true
     tmpfs:
@@ -40,6 +44,8 @@ services:
       - SPRING_SERVER_PORT=${SPRING_SERVER_PORT:-8080}
     ports:
       - "${SPRING_SERVER_PORT}:${SPRING_SERVER_PORT}"
+    networks:
+      - app
     depends_on:
       - database
 
@@ -69,3 +75,8 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./db_data:/var/lib/mysql
+    networks:
+      - app
+
+networks:
+  app:

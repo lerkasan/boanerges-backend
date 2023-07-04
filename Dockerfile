@@ -13,11 +13,8 @@ RUN mvn --batch-mode --no-transfer-progress clean package
 
 FROM eclipse-temurin:17-jre-alpine@sha256:dd8238c151293ae6a7c22898ef2f0df2af8a05786aef73ccd3248e73765969ed
 
-ENV APP_NAME=capstone \
-    APP_VERSION=0.0.1-SNAPSHOT \
-    SPRING_SERVER_PORT=8080
-
-EXPOSE ${SPRING_SERVER_PORT}
+ARG APP_NAME=capstone
+ARG APP_VERSION=0.0.1-SNAPSHOT
 
 RUN mkdir /app &&  \
     addgroup javauser &&  \
@@ -28,6 +25,6 @@ USER javauser
 
 WORKDIR /app
 
-COPY --from=builder /app/target/${APP_NAME}-${APP_VERSION}.jar /app/${APP_NAME}-${APP_VERSION}.jar
+COPY --from=builder /app/target/${APP_NAME}-${APP_VERSION}.jar /app/app.jar
 
-ENTRYPOINT ["sh", "-c", "java -jar ${APP_NAME}-${APP_VERSION}.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar app.jar"]
