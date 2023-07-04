@@ -4,13 +4,21 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - 'frontend/**'
-      - 'Dockerfile.frontend'
-#      - '.github/**'
-      - 'README.md'
-      - '.gitignore'
-      - '.dockerignore'
+    paths:
+      - 'backend/**'
+      - 'Dockerfile.backend'
+      - '.github/workflows/backend-ci.yml'
+      - '.github/workflows/dockerize_and_deploy.yml'
+      - 'infra/**'
+      - 'compose.yml'
+#    paths-ignore:
+#      - 'frontend/**'
+#      - 'Dockerfile.frontend'
+#      - '.github/workflows/frontend-ci.yml'
+##      - '.github/**'
+#      - 'README.md'
+#      - '.gitignore'
+#      - '.dockerignore'
 
 # for debugging purposes
   workflow_dispatch:
@@ -106,6 +114,14 @@ jobs:
     name: Dockerize and Deploy Backend
     needs: [ build, test ]
     if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write       # For signing images via sigstore/cosign with GitHub OIDC Token
     uses: ./.github/workflows/dockerize_and_deploy.yml
     with:
       app_part: backend
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PIPELINE_AWS_ACCESS_KEY_ID: ${{ secrets.PIPELINE_AWS_ACCESS_KEY_ID }}
+      PIPELINE_AWS_SECRET_KEY_ID: ${{ secrets.PIPELINE_AWS_SECRET_KEY_ID }}
