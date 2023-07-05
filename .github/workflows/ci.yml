@@ -185,10 +185,14 @@ jobs:
           in_progress_deployment_id=$(echo $deployments | jq -r '.deployments[0]')
           echo count=$count >> "$GITHUB_OUTPUT"
           echo in_progress_deployment_id=$in_progress_deployment_id >> "$GITHUB_OUTPUT"
+          echo count=$count
+          echo in_progress_deployment_id=$in_progress_deployment_id
 
       - name: Wait for other ongoing deployment to finish
         if: ${{ steps.deployment_in_progress.outputs.count }} > 0
         run: |
+          echo ${{ steps.deployment_in_progress.outputs.count }}
+          echo ${{ steps.deployment_in_progress.outputs.in_progress_deployment_id }}
           aws deploy wait deployment-successful --deployment-id ${{ steps.deployment_in_progress.outputs.in_progress_deployment_id }}
 
       - name: Create Deployment at AWS CodeDeploy
