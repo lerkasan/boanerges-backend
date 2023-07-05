@@ -182,7 +182,7 @@ jobs:
         run: |
           deployments=$(aws deploy list-deployments --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --region ${{ env.AWS_REGION }} --include-only-statuses "InProgress" --output json)
           count=$(echo $deployments | jq -r '.deployments | length')
-          in_progress_deployment_id=$(echo $deployments | jq -r '.[0]')
+          in_progress_deployment_id=$(echo $deployments | jq -r '.deployments[0]')
           echo count=$count >> "$GITHUB_OUTPUT"
           echo in_progress_deployment_id=$in_progress_deployment_id >> "$GITHUB_OUTPUT"
 
