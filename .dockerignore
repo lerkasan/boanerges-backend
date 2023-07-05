@@ -3,9 +3,6 @@
 .github/
 .gitignore
 .dockerignore
-Dockerfile*
-README.md
+Dockerfile
 target/
 db_data/
-node_modules/
-

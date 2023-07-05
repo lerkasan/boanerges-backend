@@ -1,6 +1,4 @@
-This project is deployed at http://lerkasan.net
-
-In order to run the project locally, you need to have the following dependencies installed:
+In order to run the project, you need to have the following dependencies installed:
 - Docker
 - Docker Compose
 
@@ -18,7 +16,7 @@ _Example:_
 
 
 3. Open directory with the source code:
-`cd boanerges`
+`cd boanerges-backend`
 
 
 4. Run the project: `docker compose -f compose-dev.yml up`
@@ -28,3 +26,5 @@ _Example:_
 
 
 6. To stop the project, press `Ctrl + C` and run the following command: `docker compose -f compose-dev.yml down`
+
+_Note:_ Repository with frontend source code: [lerkasan/boanerges-frontend](https://github.com/lerkasan/boanerges-frontend)

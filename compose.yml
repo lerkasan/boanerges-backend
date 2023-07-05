@@ -18,8 +18,8 @@ services:
       - DAC_OVERRIDE
       - SETGID
       - SETUID
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME:-lerkasan.net}
+#    environment:
+#      DOMAIN_NAME: ${DOMAIN_NAME:-lerkasan.net}
     ports:
       - "80:80"
     networks:
