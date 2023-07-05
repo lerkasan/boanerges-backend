@@ -24,6 +24,9 @@ tags = {
     environment = var.environment
     project     = var.project_name
   }
+
+  # Dependency is used to ensure that EC2 instance will have Internet access during userdata execution
+  depends_on  = [ aws_internet_gateway.this, aws_nat_gateway.this ]
 }
 
 resource "aws_security_group" "appserver" {
@@ -38,8 +41,8 @@ resource "aws_security_group" "appserver" {
     project     = var.project_name
   }
 
-  # Dependency is used to ensure that VPC has an Internet gateway
-  depends_on  = [ aws_internet_gateway.this ]
+#  # Dependency is used to ensure that VPC has an Internet gateway
+#  depends_on  = [ aws_internet_gateway.this ]
 }
 
 resource "aws_iam_instance_profile" "this" {

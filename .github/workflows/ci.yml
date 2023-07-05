@@ -176,5 +176,24 @@ jobs:
           aws-access-key-id: ${{ secrets.PIPELINE_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PIPELINE_AWS_SECRET_KEY_ID }}
           aws-region: ${{ env.AWS_REGION }}
-      - run: |
-          aws deploy create-deployment --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --github-location repository=$GITHUB_REPOSITORY,commitId=$GITHUB_SHA --ignore-application-stop-failures
+      - name: Check for other ongoing deployment
+        id: deployment_in_progress
+        run: |
+          count=$(aws deploy list-deployments --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --include-only-statuses "InProgress" --output json | jq -r '. | length')
+#          deployment_id=$(aws deploy list-deployments --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --query "deployments[?status=='InProgress'].deploymentId" --output text --no-paginate)
+          echo count=$count >> "$GITHUB_OUTPUT"
+          
+      - name: Wait for other ongoing deployment to finish
+        if: ${{ steps.deployment_in_progress.outputs.count }} > 0
+        run: |
+          in_progress_deployment_id=$(aws deploy create-deployment --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --github-location repository=$GITHUB_REPOSITORY,commitId=$GITHUB_SHA --ignore-application-stop-failures --query "deploymentId" --output text --no-paginate)
+          aws deploy wait deployment-successful --deployment-id $in_progress_deployment_id
+
+      - name: Create Deployment at AWS CodeDeploy
+        id: codedeploy
+        run: |
+          deployment_id=$(aws deploy create-deployment --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --github-location repository=$GITHUB_REPOSITORY,commitId=$GITHUB_SHA --ignore-application-stop-failures --query "deploymentId" --output text --no-paginate)
+          echo deployment_id=$deployment_id >> "$GITHUB_OUTPUT"
+      - name: Wait and verify whether the deployment was successful
+        run: |
+          aws deploy wait deployment-successful --deployment-id ${{ steps.codedeploy.outputs.deployment_id }}"   
