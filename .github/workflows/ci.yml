@@ -180,7 +180,7 @@ jobs:
       - name: Check for other ongoing deployment
         id: deployment_in_progress
         run: |
-          count=$(aws deploy list-deployments --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --include-only-statuses "InProgress" --output json | jq -r '. | length')
+          count=$(aws deploy list-deployments --application-name ${{ env.CODEDEPLOY_APPLICATION }} --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} --include-only-statuses "InProgress" --output json | jq -r '.deployments | length')
           echo count=$count >> "$GITHUB_OUTPUT"
 
       - name: Wait for other ongoing deployment to finish
