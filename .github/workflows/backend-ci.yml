@@ -8,7 +8,7 @@ on:
       - 'backend/**'
       - 'Dockerfile.backend'
       - '.github/workflows/backend-ci.yml'
-      - '.github/workflows/dockerize_and_deploy.yml'
+#      - '.github/workflows/dockerize_and_deploy.yml'
       - 'infra/**'
       - 'compose.yml'
 #    paths-ignore:

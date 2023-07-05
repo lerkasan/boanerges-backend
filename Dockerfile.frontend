@@ -6,7 +6,7 @@ RUN mkdir /app
 
 WORKDIR /app
 
-COPY frontend/package*.json jsconfig.json babel.config.js vue.config.js ./
+COPY frontend/package*.json frontend/jsconfig.json frontend/babel.config.js frontend/vue.config.js ./
 COPY frontend/.env.${ENVIRONMENT} ./.env
 COPY frontend/./src ./src
 
