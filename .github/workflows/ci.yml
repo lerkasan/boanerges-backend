@@ -197,4 +197,4 @@ jobs:
 
       - name: Wait and verify whether the deployment was successful
         run: |
-          aws deploy wait deployment-successful --deployment-id ${{ steps.codedeploy.outputs.deployment_id }}"
+          aws deploy wait deployment-successful --deployment-id ${{ steps.codedeploy.outputs.deployment_id }}
