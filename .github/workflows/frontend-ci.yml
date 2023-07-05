@@ -46,13 +46,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install dependencies
-        run: npm ci --prefix 'frontend/package.json'
+        run: npm ci
+#        run: npm ci --prefix 'frontend/package.json'
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Build
-        run: npm run build --prefix 'frontend/package.json'
+        run: npm run build
+#        run: npm run build --prefix 'frontend/package.json'
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
 
@@ -75,13 +78,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install dependencies
-        run: npm ci --prefix 'frontend/package.json'
+        run: npm ci
+#        run: npm ci --prefix 'frontend/package.json'
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Build
-        run: npm test --prefix 'frontend/package.json'
+        run: npm test
+#        run: npm test --prefix 'frontend/package.json'
 #        working-directory: ${{ env.WORKING_DIRECTORY }}
 
 
