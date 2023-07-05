@@ -189,7 +189,7 @@ jobs:
           echo in_progress_deployment_id=$in_progress_deployment_id
 
       - name: Wait for other ongoing deployment to finish
-        if: ${{ steps.deployment_in_progress.outputs.count }} > 0
+        if: steps.deployment_in_progress.outputs.count > 0
         run: |
           echo ${{ steps.deployment_in_progress.outputs.count }}
           echo ${{ steps.deployment_in_progress.outputs.in_progress_deployment_id }}
